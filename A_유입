@@ -1,0 +1,33 @@
+# order와 ord_it 데이터를 order_id를 기준으로 병합
+merged_data = pd.merge(order, ord_ite, on='order_id', how='inner')
+
+# Origin을 기준으로 트래픽 소스별 방문자 수 계산
+traffic_source_visitors = merged_data['origin'].value_counts()
+print("트래픽 소스별 방문자 수:")
+print(traffic_source_visitors)
+
+# 트래픽 소스별 전환 수 계산 (구매 완료 건수), (실현수익률 기준)
+delivered_orders = merged_data[(merged_data['order_status'] != 'canceled') & (merged_data['order_status'] != 'unavailable')]
+conversion_by_source = delivered_orders['origin'].value_counts()
+print("트래픽 소스별 전환 수:")
+print(conversion_by_source)
+
+# # 트래픽 소스별 전환 수 계산 (구매 완료 건수), (배송완료 기준)
+# delivered_orders = merged_data[(merged_data['order_status'] == 'delivered')]
+# conversion_by_source = delivered_orders['origin'].value_counts()
+# print("트래픽 소스별 전환 수:")
+# print(conversion_by_source)
+
+# 전환율 계산
+conversion_rate_by_source = (conversion_by_source / traffic_source_visitors) * 100
+print("트래픽 소스별 전환율:")
+print(conversion_rate_by_source)
+
+traffic_sources = merged_data['origin'].unique()
+
+for source in traffic_sources:
+    source_data = merged_data[merged_data['origin'] == source]
+    top_items = order['product_category_name_english'].value_counts().head(5)
+    print(f"트래픽 소스: {source}")
+    print(top_items)
+    print()
